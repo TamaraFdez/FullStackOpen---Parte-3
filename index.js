@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const morgan = require('morgan')
+const morgan = require("morgan");
+const cors = require("cors");
 
 let data = [
   {
@@ -25,12 +26,13 @@ let data = [
   },
 ];
 
-
 morgan.token("body", (req) => JSON.stringify(req.body));
+app.use(cors);
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
-app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
-
-app.use(express.json())
+app.use(express.json());
 
 //GET
 app.get("/", (resquest, response) => {
@@ -51,50 +53,46 @@ app.get("/info", (request, response) => {
 });
 
 //Get de un solo contacto
-app.get('/api/data/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const contact = data.find(contact => contact.id === id)
-  
+app.get("/api/data/:id", (request, response) => {
+  const id = Number(request.params.id);
+  const contact = data.find((contact) => contact.id === id);
 
   if (contact) {
-    response.json(contact)
+    response.json(contact);
   } else {
-    response.status(404).end()
+    response.status(404).end();
   }
-})
+});
 
 //detele
-app.delete('/api/data/:id', (request, response) => {
-  const id = Number(request.params.id)
-  data = data.filter(contact => contact.id !== id)
+app.delete("/api/data/:id", (request, response) => {
+  const id = Number(request.params.id);
+  data = data.filter((contact) => contact.id !== id);
 
-  response.status(204).end()
-})
+  response.status(204).end();
+});
 
 //POST
 const generateId = () => {
-  const randomId = Math.floor(Math.random()*1000000)
-  return randomId 
-}
-
+  const randomId = Math.floor(Math.random() * 1000000);
+  return randomId;
+};
 
 app.post("/api/data", (request, response) => {
   const body = request.body;
 
-  
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: "No hay Número o Nombre",
     });
   }
 
-  const existingContact = data.find(contact => contact.name === body.name);
+  const existingContact = data.find((contact) => contact.name === body.name);
   if (existingContact) {
     return response.status(400).json({
       error: "El nombre ya esta en uso.",
     });
   }
-
 
   const contact = {
     name: body.name,
@@ -106,10 +104,6 @@ app.post("/api/data", (request, response) => {
 
   response.json(contact);
 });
-
-
-
-
 
 const PORT = 3001;
 app.listen(PORT, () => {
