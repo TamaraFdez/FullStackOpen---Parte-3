@@ -27,7 +27,7 @@ let data = [
 ];
 
 morgan.token("body", (req) => JSON.stringify(req.body));
-app.use(cors);
+app.use(cors()); 
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
@@ -53,7 +53,7 @@ app.get("/info", (request, response) => {
 });
 
 //Get de un solo contacto
-app.get("/api/data/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   const contact = data.find((contact) => contact.id === id);
 
@@ -65,7 +65,7 @@ app.get("/api/data/:id", (request, response) => {
 });
 
 //detele
-app.delete("/api/data/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   data = data.filter((contact) => contact.id !== id);
 
@@ -78,7 +78,7 @@ const generateId = () => {
   return randomId;
 };
 
-app.post("/api/data", (request, response) => {
+app.post("/api/persons", (request, response) => {
   const body = request.body;
 
   if (!body.name || !body.number) {
@@ -105,7 +105,7 @@ app.post("/api/data", (request, response) => {
   response.json(contact);
 });
 
-const PORT = 3001;
+const PORT = 3002;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto: ${PORT}`);
 });
