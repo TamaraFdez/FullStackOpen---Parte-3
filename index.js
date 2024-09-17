@@ -40,9 +40,6 @@ app.use(express.static(path.join(__dirname, 'dist')));
 /*app.get("/", (resquest, response) => {
   response.send("<h1>Lista telefónica</h1>");
 });*/
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
-});
 app.get("/api/persons", (request, response) => {
   response.json(data);
 });
@@ -73,7 +70,7 @@ app.get("/api/persons/:id", (request, response) => {
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
   data = data.filter((contact) => contact.id !== id);
-
+  
   response.status(204).end();
 });
 
@@ -85,13 +82,13 @@ const generateId = () => {
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
-
+  
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: "No hay Número o Nombre",
     });
   }
-
+  
   const existingContact = data.find((contact) => contact.name === body.name);
   if (existingContact) {
     return response.status(400).json({
@@ -104,10 +101,13 @@ app.post("/api/persons", (request, response) => {
     number: body.number,
     id: generateId(),
   };
-
+  
   data = data.concat(contact);
 
   response.json(contact);
+});
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 
 const PORT = process.env.PORT || 3002
