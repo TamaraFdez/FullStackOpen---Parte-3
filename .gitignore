@@ -1,2 +1,5 @@
 node_modules
 token
+.env
+mongo.js
+seed.js
