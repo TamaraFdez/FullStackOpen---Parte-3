@@ -4,7 +4,7 @@ const morgan = require("morgan");
 const path = require('path')
 const cors = require('cors')
 
-/*let data = [
+let data = [
   {
     id: 1,
     name: "Arto Hellas",
@@ -25,7 +25,7 @@ const cors = require('cors')
     name: "Mary Poppendieck",
     number: "39-23-6423122",
   },
-];*/
+];
 
 morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(cors()); 
