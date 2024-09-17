@@ -74,6 +74,7 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+
 //POST
 const generateId = () => {
   const randomId = Math.floor(Math.random() * 1000000);
