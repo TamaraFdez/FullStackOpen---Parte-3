@@ -5,7 +5,6 @@ const path = require("path");
 const cors = require("cors");
 const Contacto = require("./models/contacts");
 
-
 morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(cors());
 app.use(
@@ -15,6 +14,24 @@ app.use(
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "dist")));
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+app.use(errorHandler)
 //GET
 /*app.get("/", (resquest, response) => {
   response.send("<h1>Lista telefónica</h1>");
@@ -24,12 +41,8 @@ app.get("/api/persons", (request, response) => {
     .then((contacts) => {
       response.json(contacts);
     })
-    .catch((error) => {
-      console.error("Error al pedir datos:", error);
-      response.status(500).end();
-    });
+    .catch(error => next(error))
 });
-
 
 //Hora y contador
 /*app.get("/info", (request, response) => {
@@ -43,13 +56,15 @@ app.get("/api/persons", (request, response) => {
 
 //Get de un solo contacto
 app.get("/api/persons/:id", (request, response) => {
-  Contacto.findById(request.params.id).then((contact) => {
-    if (contact) {
-      response.json(contact);
-    } else {
-      response.status(404).end();
-    }
-  });
+  Contacto.findById(request.params.id)
+    .then((contact) => {
+      if (contact) {
+        response.json(contact);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error))
   // const id = Number(request.params.id);
   // const contact = data.find((contact) => contact.id === id);
 });
@@ -60,10 +75,7 @@ app.delete("/api/persons/:id", (request, response) => {
     .then((result) => {
       response.status(204).end();
     })
-    .catch((error) => {
-      console.error("Error al borrar contacto:", error);
-      response.status(500).end();
-    });
+    .catch(error => next(error))
   // const id = Number(request.params.id);
   // data = data.filter((contact) => contact.id !== id);
 
@@ -89,7 +101,9 @@ app.post("/api/persons", (request, response) => {
       if (existingContact) {
         return response
           .status(400)
-          .json({ error: `El contacto con nombre ${name} o número ${number} ya existe.` });
+          .json({
+            error: `El contacto con nombre ${name} o número ${number} ya existe.`,
+          });
       }
 
       const newContact = new Contacto({ name, number });
@@ -104,22 +118,51 @@ app.post("/api/persons", (request, response) => {
       response.status(500).end();
     });
 });
-        /*const existingContact = data.find((contact) => contact.name === body.name);
+/*const existingContact = data.find((contact) => contact.name === body.name);
   if (existingContact) {
     return response.status(400).json({
       error: "El nombre ya esta en uso.",
     });
   }*/
 
-        // const contact =  new Contacto({
-        //   name: body.name,
-        //   number: body.number
-        //id: generateId(),
-        //});
+// const contact =  new Contacto({
+//   name: body.name,
+//   number: body.number
+//id: generateId(),
+//});
 
-        //data = data.concat(contact);
+//data = data.concat(contact);
 
-        //response.json(contact);
+//response.json(contact);
+
+app.put("/api/persons/:id", (request, response) => {
+  const id = request.params.id;
+  const body = request.body;
+
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: "El nombre o el número no pueden estar vacíos",
+    });
+  }
+
+  const updatedContact = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Contacto.findByIdAndUpdate(id, updatedContact, {
+    new: true,
+    runValidators: true,
+  })
+    .then((updatedContact) => {
+      if (updatedContact) {
+        response.json(updatedContact);
+      } else {
+        response.status(404).send({ error: "Contacto no encontrado" });
+      }
+    })
+    .catch(error => next(error))
+});
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "dist", "index.html"));
