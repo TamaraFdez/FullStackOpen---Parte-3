@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const cors = require("cors");
+const path = require('path')
 
-let data = [
+/*let data = [
   {
     id: 1,
     name: "Arto Hellas",
@@ -24,7 +24,7 @@ let data = [
     name: "Mary Poppendieck",
     number: "39-23-6423122",
   },
-];
+];*/
 
 morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(cors()); 
@@ -34,10 +34,14 @@ app.use(
 
 app.use(express.json());
 
+app.use(express.static(path.join(__dirname, 'dist')));
 //GET
 /*app.get("/", (resquest, response) => {
   response.send("<h1>Lista telefónica</h1>");
 });*/
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+});
 app.get("/api/persons", (request, response) => {
   response.json(data);
 });
@@ -105,7 +109,7 @@ app.post("/api/persons", (request, response) => {
   response.json(contact);
 });
 
-const PORT = 3002;
+const PORT = process.env.PORT || 3002
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto: ${PORT}`);
 });
