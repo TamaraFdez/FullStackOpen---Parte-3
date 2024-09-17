@@ -35,9 +35,9 @@ app.use(
 app.use(express.json());
 
 //GET
-app.get("/", (resquest, response) => {
+/*app.get("/", (resquest, response) => {
   response.send("<h1>Lista telefónica</h1>");
-});
+});*/
 app.get("/api/persons", (request, response) => {
   response.json(data);
 });
