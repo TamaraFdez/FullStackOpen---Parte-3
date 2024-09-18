@@ -15,7 +15,6 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "dist")));
 
-
 //GET
 /*app.get("/", (resquest, response) => {
   response.send("<h1>Lista telefónica</h1>");
@@ -25,7 +24,7 @@ app.get("/api/persons", (request, response, next) => {
     .then((contacts) => {
       response.json(contacts);
     })
-    .catch(error => next(error))
+    .catch((error) => next(error));
 });
 
 //Hora y contador
@@ -48,7 +47,7 @@ app.get("/api/persons/:id", (request, response, next) => {
         response.status(404).end();
       }
     })
-    .catch(error => next(error))
+    .catch((error) => next(error));
   // const id = Number(request.params.id);
   // const contact = data.find((contact) => contact.id === id);
 });
@@ -56,10 +55,10 @@ app.get("/api/persons/:id", (request, response, next) => {
 //detele
 app.delete("/api/persons/:id", (request, response, next) => {
   Contacto.findByIdAndDelete(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
-    .catch(error => next(error))
+    .catch((error) => next(error));
   // const id = Number(request.params.id);
   // data = data.filter((contact) => contact.id !== id);
 
@@ -83,11 +82,9 @@ app.post("/api/persons", (request, response, next) => {
   Contacto.findOne({ $or: [{ name }, { number }] })
     .then((existingContact) => {
       if (existingContact) {
-        return response
-          .status(400)
-          .json({
-            error: `El contacto con nombre ${name} o número ${number} ya existe.`,
-          });
+        return response.status(400).json({
+          error: `El contacto con nombre ${name} o número ${number} ya existe.`,
+        });
       }
 
       const newContact = new Contacto({ name, number });
@@ -97,7 +94,7 @@ app.post("/api/persons", (request, response, next) => {
     .then((savedContact) => {
       response.json(savedContact);
     })
-    .catch(error => next(error));
+    .catch((error) => next(error));
 });
 /*const existingContact = data.find((contact) => contact.name === body.name);
   if (existingContact) {
@@ -134,7 +131,7 @@ app.put("/api/persons/:id", (request, response, next) => {
   Contacto.findByIdAndUpdate(id, updatedContact, {
     new: true,
     runValidators: true,
-    context: 'query'
+    context: "query",
   })
     .then((updatedContact) => {
       if (updatedContact) {
@@ -143,32 +140,30 @@ app.put("/api/persons/:id", (request, response, next) => {
         response.status(404).send({ error: "Contacto no encontrado" });
       }
     })
-    .catch(error => next(error))
+    .catch((error) => next(error));
 });
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 
-
-
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-  
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
   }
-  next(error)
-}
-app.use(errorHandler)
+  next(error);
+};
+app.use(errorHandler);
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
+  response.status(404).send({ error: "unknown endpoint" });
+};
 
-app.use(unknownEndpoint)
+app.use(unknownEndpoint);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
