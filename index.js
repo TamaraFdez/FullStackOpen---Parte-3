@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, "dist")));
 /*app.get("/", (resquest, response) => {
   response.send("<h1>Lista telefónica</h1>");
 });*/
-app.get("/api/persons", (request, response) => {
+app.get("/api/persons", (request, response, next) => {
   Contacto.find({})
     .then((contacts) => {
       response.json(contacts);
@@ -39,7 +39,7 @@ app.get("/api/persons", (request, response) => {
 });*/
 
 //Get de un solo contacto
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   Contacto.findById(request.params.id)
     .then((contact) => {
       if (contact) {
@@ -54,7 +54,7 @@ app.get("/api/persons/:id", (request, response) => {
 });
 
 //detele
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
   Contacto.findByIdAndDelete(request.params.id)
     .then((result) => {
       response.status(204).end();
@@ -97,7 +97,7 @@ app.post("/api/persons", (request, response, next) => {
     .then((savedContact) => {
       response.json(savedContact);
     })
-    .catch((error) => { error => next(error)});
+    .catch(error => next(error));
 });
 /*const existingContact = data.find((contact) => contact.name === body.name);
   if (existingContact) {
@@ -116,7 +116,7 @@ app.post("/api/persons", (request, response, next) => {
 
 //response.json(contact);
 
-app.put("/api/persons/:id", (request, response) => {
+app.put("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   const body = request.body;
 
